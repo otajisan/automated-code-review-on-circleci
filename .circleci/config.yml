@@ -41,4 +41,4 @@ workflows:
           base-revision: origin/main
           config-path: /tmp/workspace/publish.yml
           mapping: |
-            docker/.* docker true
+            docker/.* build-claude-code-docker true
