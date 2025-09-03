@@ -9,6 +9,8 @@ workflows:
           dockerfile: Dockerfile
           path: docker
           image: otajisan/claude-code-docker
+          docker_username: ${DOCKER_USERNAME}
+          docker_password: ${DOCKER_PASSWORD}
           update_description: true
           tag: '${CIRCLE_SHA1}'
           filters:
