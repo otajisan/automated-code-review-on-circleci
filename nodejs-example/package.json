@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-example",
+  "version": "1.0.0",
+  "description": "Node.js example project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "otajisan",
+  "license": "MIT",
+  "volta": {
+    "node": "22.18.0",
+    "npm": "10.9.3"
+  }
+}
