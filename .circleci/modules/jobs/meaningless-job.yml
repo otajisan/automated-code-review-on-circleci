@@ -1,0 +1,9 @@
+jobs:
+  meaningless-job:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run:
+          name: no diff found
+          command: |
+            echo 'no diff found'
