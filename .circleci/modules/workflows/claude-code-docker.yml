@@ -10,7 +10,7 @@ workflows:
           path: docker
           image: otajisan/claude-code-docker
           update_description: true
-          #tag: '${CIRCLE_SHA1}'
+          tag: '${CIRCLE_SHA1}'
           filters:
             branches:
               #only:
