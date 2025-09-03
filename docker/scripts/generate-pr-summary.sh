@@ -49,6 +49,10 @@ ${DIFF_OUTPUT}
 # Claude Codeを実行してサマリ生成
 SUMMARY=$(claude "$PROMPT")
 
+echo "${SUMMARY}"
+
+SUMMARY='これはテストです'
+
 # GitHub APIでPRにコメントを投稿
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \

@@ -16,6 +16,7 @@ jobs:
             claude --version
 
             # execute the PR summary generation script
+            cd project
             /app/scripts/generate-pr-summary.sh
           environment:
             ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
