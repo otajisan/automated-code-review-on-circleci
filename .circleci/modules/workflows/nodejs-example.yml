@@ -1,0 +1,10 @@
+workflows:
+  # Node.js Example
+  build-nodejs-example:
+    when: << pipeline.parameters.build-nodejs-example >>
+    jobs:
+      - build-and-test-nodejs-example:
+          filters:
+            branches:
+              ignore:
+                - main
