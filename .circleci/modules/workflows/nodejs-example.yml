@@ -13,3 +13,5 @@ workflows:
             branches:
               ignore:
                 - main
+            #requires:
+            #  - claude-pr-analysis

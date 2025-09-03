@@ -15,10 +15,18 @@ if [ -z "$GITHUB_TOKEN" ]; then
 fi
 
 # PR情報を取得
-PR_NUMBER=${CIRCLE_PR_NUMBER}
-if [ -z "$PR_NUMBER" ]; then
-    echo "No PR number found, skipping PR summary generation"
+if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+    echo "No PR URL found, skipping PR summary generation"
     exit 0
+fi
+
+# CIRCLE_PULL_REQUESTからPR番号を抽出
+# 例: https://github.com/otajisan/automated-code-review-on-circleci/pull/2 -> 2
+PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's|.*/pull/||')
+
+if [ -z "$PR_NUMBER" ] || ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+    echo "Failed to extract valid PR number from: $CIRCLE_PULL_REQUEST"
+    exit 1
 fi
 
 echo "Generating summary for PR #${PR_NUMBER}"
