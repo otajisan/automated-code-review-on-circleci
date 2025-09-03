@@ -3,6 +3,11 @@ workflows:
   build-nodejs-example:
     when: << pipeline.parameters.build-nodejs-example >>
     jobs:
+      - claude-pr-analysis:
+          filters:
+            branches:
+              ignore: main
+
       - build-and-test-nodejs-example:
           filters:
             branches:

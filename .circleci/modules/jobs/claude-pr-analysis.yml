@@ -1,0 +1,22 @@
+version: 2.1
+
+jobs:
+  claude-pr-analysis:
+    docker:
+      - image: otajisan/claude-code-docker:latest
+    #environment:
+    #  - NODE_ENV: production
+    steps:
+      - checkout
+
+      - run:
+          name: "Generate PR Summary"
+          command: |
+            echo "Claude Code version:"
+            claude-code --version
+
+            # execute the PR summary generation script
+            ./scripts/generate-pr-summary.sh
+          environment:
+            ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
+            GITHUB_TOKEN: $GITHUB_TOKEN
