@@ -59,7 +59,7 @@ jobs:
       - checkout
       - run:
           name: "Generate PR Summary"
-          command: claude-code --prompt "Analyze this PR..."
+          command: claude "Analyze this PR..."
           environment:
             ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
 ```
@@ -76,7 +76,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v3
-      - run: claude-code --version
+      - run: claude --version
 ```
 
 ### Local Development
@@ -88,7 +88,7 @@ docker run --rm -it \
   -v $(pwd):/app \
   -w /app \
   otajisan/claude-code-docker:latest \
-  claude-code --prompt "Review this code change"
+  claude "Review this code change"
 ```
 
 ## Volume Mounts
@@ -113,7 +113,7 @@ Mount your project directory to work with your code:
 **Claude Code not found:**
 ```bash
 # Check if Claude Code is properly installed
-docker run --rm otajisan/claude-code-docker:latest which claude-code
+docker run --rm otajisan/claude-code-docker:latest which claude
 ```
 
 **Permission errors:**
