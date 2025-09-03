@@ -6,7 +6,7 @@ orbs:
 
 parameters:
   # Build flags
-  build-build-claude-code-docker:
+  build-claude-code-docker:
     type: boolean
     default: false
 
