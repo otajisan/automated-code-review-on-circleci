@@ -39,7 +39,7 @@ ${DIFF_OUTPUT}
 ## 注意事項（あれば）"
 
 # Claude Codeを実行してサマリ生成
-SUMMARY=$(claude-code --prompt "$PROMPT")
+SUMMARY=$(claude "$PROMPT")
 
 # GitHub APIでPRにコメントを投稿
 curl -X POST \

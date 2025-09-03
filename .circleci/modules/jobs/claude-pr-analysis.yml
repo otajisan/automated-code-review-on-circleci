@@ -13,7 +13,7 @@ jobs:
           name: "Generate PR Summary"
           command: |
             echo "Claude Code version:"
-            claude-code --version
+            claude --version
 
             # execute the PR summary generation script
             ./scripts/generate-pr-summary.sh
