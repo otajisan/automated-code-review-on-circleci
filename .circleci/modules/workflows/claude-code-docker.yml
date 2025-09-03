@@ -7,6 +7,7 @@ workflows:
     jobs:
       - docker/publish:
           dockerfile: Dockerfile
+          docker_context: docker
           path: docker
           image: otajisan/claude-code-docker
           docker_username: DOCKER_USERNAME
