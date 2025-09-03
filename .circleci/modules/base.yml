@@ -1,0 +1,25 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@3.0.0
+  slack: circleci/slack@4.12.5
+
+parameters:
+  # Build flags
+  build-build-claude-code-docker:
+    type: boolean
+    default: false
+
+commands:
+
+jobs:
+
+workflows:
+  version: 2.1
+
+  meaningless-job:
+    jobs:
+      - meaningless-job
+    when:
+      and:
+        - not: << pipeline.parameters.build-claude-code-docker >>
