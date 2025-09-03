@@ -49,15 +49,14 @@ ${DIFF_OUTPUT}
 # Claude Codeを実行してサマリ生成
 SUMMARY=$(claude "$PROMPT")
 
-echo "${SUMMARY}"
-
-SUMMARY='これはテストです'
+echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
 
 # GitHub APIでPRにコメントを投稿
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/issues/${PR_NUMBER}/comments" \
-  -d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}"
+  -d '{"body": "this is test comment"}'
+  #-d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}"
 
 echo "PR summary generated and posted successfully!"
