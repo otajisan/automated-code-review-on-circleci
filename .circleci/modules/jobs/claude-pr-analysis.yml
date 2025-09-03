@@ -6,6 +6,9 @@ jobs:
       - image: otajisan/claude-code-docker:latest
     #environment:
     #  - NODE_ENV: production
+
+    working_directory: ~/repo
+
     steps:
       - checkout
 
@@ -16,7 +19,7 @@ jobs:
             claude --version
 
             # execute the PR summary generation script
-            cd project
+            pwd
             /app/scripts/generate-pr-summary.sh
           environment:
             ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY

@@ -16,6 +16,8 @@ workflows:
           tag: 'latest,${CIRCLE_SHA1}'
           filters:
             branches:
-              only:
+              # TODO:
+              #only:
+              ignore:
                 - main
 
