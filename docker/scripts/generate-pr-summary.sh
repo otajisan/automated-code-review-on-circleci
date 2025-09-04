@@ -34,6 +34,9 @@ echo "Generating summary for PR #${PR_NUMBER}"
 # git diffで変更内容を取得
 DIFF_OUTPUT=$(git diff origin/main...HEAD)
 
+echo "Diff Output:"
+echo "$DIFF_OUTPUT"
+
 # Claude Codeでサマリを生成
 PROMPT="以下のコード変更を分析して、分かりやすい日本語でPRサマリを作成してください：
 
