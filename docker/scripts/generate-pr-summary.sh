@@ -54,6 +54,9 @@ SUMMARY=$(claude "$PROMPT")
 
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
 
+echo "Generated PR Summary:"
+cat /tmp/pr_summary.json
+
 # GitHub APIでPRにコメントを投稿
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
