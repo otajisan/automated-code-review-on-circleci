@@ -42,3 +42,4 @@ workflows:
           config-path: /tmp/workspace/publish.yml
           mapping: |
             docker/.* build-claude-code-docker true
+            nodejs-example/.* build-nodejs-example true

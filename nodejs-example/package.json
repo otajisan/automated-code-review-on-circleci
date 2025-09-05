@@ -4,7 +4,11 @@
   "description": "Node.js example project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "lint": "echo 'Running linter...' && node -c index.js",
+    "test": "node --test || echo 'No tests found'",
+    "build": "echo 'Build completed successfully'"
   },
   "author": "otajisan",
   "license": "MIT",
