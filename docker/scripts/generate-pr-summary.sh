@@ -49,6 +49,8 @@ ${DIFF_OUTPUT}
 ## 影響範囲
 ## 注意事項（あれば）"
 
+echo 'Creating PR summary with Claude...'
+
 # Claude Codeを実行してサマリ生成
 SUMMARY=$(claude "$PROMPT")
 
