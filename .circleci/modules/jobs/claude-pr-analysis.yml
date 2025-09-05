@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - checkout
+      - setup_remote_docker
 
       - run:
           name: "Generate PR Summary"
@@ -21,7 +22,7 @@ jobs:
             # execute the PR summary generation script
             pwd
             ./docker/scripts/generate-pr-summary.sh
-            #/app/scripts/generate-pr-summary.sh
+            #/claude-code-docker/scripts/generate-pr-summary.sh
           environment:
             ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
             GITHUB_TOKEN: $GITHUB_TOKEN
