@@ -3,28 +3,11 @@
 
 set -e
 
+# スクリプトのディレクトリを取得
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # 環境変数チェック
-if [ -z "$ANTHROPIC_API_KEY" ]; then
-    echo "Error: ANTHROPIC_API_KEY is not set"
-    exit 1
-fi
-
-echo "# Checking Anthropic API key..."
-echo "API Key is configured: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
-
-# GitHubトークンの確認（複数の可能性をチェック）
-if [ -n "$GITHUB_TOKEN" ]; then
-    echo "Using GITHUB_TOKEN"
-elif [ -n "$CIRCLE_TOKEN" ]; then
-    echo "Using CIRCLE_TOKEN as GITHUB_TOKEN"
-    GITHUB_TOKEN="$CIRCLE_TOKEN"
-elif [ -n "$GH_TOKEN" ]; then
-    echo "Using GH_TOKEN as GITHUB_TOKEN"
-    GITHUB_TOKEN="$GH_TOKEN"
-else
-    echo "Error: No GitHub token found (GITHUB_TOKEN, CIRCLE_TOKEN, or GH_TOKEN)"
-    exit 1
-fi
+"${SCRIPT_DIR}/verify-claude-code-token.sh"
 
 # PR情報を取得
 if [ -z "$CIRCLE_PULL_REQUEST" ]; then
@@ -72,14 +55,6 @@ ${DIFF_OUTPUT}
 ## 影響範囲
 ## 注意事項（あれば）"
 
-echo '# Checking claude command...'
-echo "Debug: About to run claude command"
-echo "ANTHROPIC_API_KEY is set: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
-echo "Current user: $(whoami)"
-echo "Current directory: $(pwd)"
-echo "Claude command path: $(which claude)"
-echo "Claude version: $(claude --version 2>&1 || echo "version check failed")"
-
 echo '# Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
@@ -112,11 +87,6 @@ echo "$COMMENT_BODY" | jq -Rs '{"body": .}' > /tmp/pr_summary.json
 
 echo "# Generated PR Summary:"
 cat /tmp/pr_summary.json
-
-echo "# Checking GitHub API credentials..."
-echo "GITHUB_TOKEN is set: $([ -n "$GITHUB_TOKEN" ] && echo "yes" || echo "no")"
-echo "CIRCLE_PROJECT_USERNAME: $CIRCLE_PROJECT_USERNAME"
-echo "CIRCLE_PROJECT_REPONAME: $CIRCLE_PROJECT_REPONAME"
 
 echo "# Posting summary to PR #${PR_NUMBER}"
 # GitHub APIでPRにコメントを投稿（ファイルから読み込み）

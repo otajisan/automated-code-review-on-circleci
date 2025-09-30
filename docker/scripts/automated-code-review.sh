@@ -3,28 +3,11 @@
 
 set -e
 
+# スクリプトのディレクトリを取得
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # 環境変数チェック
-if [ -z "$ANTHROPIC_API_KEY" ]; then
-    echo "Error: ANTHROPIC_API_KEY is not set"
-    exit 1
-fi
-
-echo "# Checking Anthropic API key..."
-echo "API Key format: ${ANTHROPIC_API_KEY:0:10}...${ANTHROPIC_API_KEY: -4}"
-
-# GitHubトークンの確認
-if [ -n "$GITHUB_TOKEN" ]; then
-    echo "Using GITHUB_TOKEN"
-elif [ -n "$CIRCLE_TOKEN" ]; then
-    echo "Using CIRCLE_TOKEN as GITHUB_TOKEN"
-    GITHUB_TOKEN="$CIRCLE_TOKEN"
-elif [ -n "$GH_TOKEN" ]; then
-    echo "Using GH_TOKEN as GITHUB_TOKEN"
-    GITHUB_TOKEN="$GH_TOKEN"
-else
-    echo "Error: No GitHub token found"
-    exit 1
-fi
+"${SCRIPT_DIR}/verify-claude-code-token.sh"
 
 # PR情報を取得
 if [ -z "$CIRCLE_PULL_REQUEST" ]; then
@@ -47,8 +30,20 @@ CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
 echo "# Changed files:"
 echo "$CHANGED_FILES"
 
-# 各ファイルの詳細な差分を取得
+# 各ファイルの詳細な差分を取得（サイズ制限付き）
 DETAILED_DIFF=$(git diff origin/main...HEAD)
+DIFF_SIZE=${#DETAILED_DIFF}
+MAX_DIFF_SIZE=${MAX_DIFF_SIZE:-50000}  # デフォルト50KB
+
+echo "# Diff size: $DIFF_SIZE bytes"
+
+if [ "$DIFF_SIZE" -gt "$MAX_DIFF_SIZE" ]; then
+    echo "Warning: Diff size ($DIFF_SIZE bytes) exceeds limit ($MAX_DIFF_SIZE bytes). Truncating..." >&2
+    DETAILED_DIFF=$(echo "$DETAILED_DIFF" | head -c "$MAX_DIFF_SIZE")
+    DETAILED_DIFF="${DETAILED_DIFF}
+
+... (diff truncated due to size limit)"
+fi
 
 echo "# Generating code review with Claude..."
 
@@ -90,7 +85,11 @@ export CLAUDE_NO_INTERACTIVE=true
 export CLAUDE_NO_TUI=true
 
 echo "# Running Claude code review..."
-REVIEW_RESULT=$(echo "$REVIEW_PROMPT" | timeout 60 claude 2>/dev/null || echo "⚠️ コードレビューの生成に失敗しました。手動でレビューしてください。")
+CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-60}
+if ! REVIEW_RESULT=$(echo "$REVIEW_PROMPT" | timeout "$CLAUDE_TIMEOUT" claude 2>&1); then
+    echo "Warning: Claude CLI execution failed after ${CLAUDE_TIMEOUT}s timeout: $REVIEW_RESULT" >&2
+    REVIEW_RESULT="⚠️ コードレビューの生成に失敗しました。手動でレビューしてください。"
+fi
 
 echo "# Code review generated successfully"
 echo "# Review content:"

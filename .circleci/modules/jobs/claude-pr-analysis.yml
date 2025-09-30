@@ -12,7 +12,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      
+
       # Cache for Node.js dependencies
       - restore_cache:
           keys:
@@ -27,14 +27,6 @@ jobs:
             source $BASH_ENV
 
       - run:
-          name: "Verify Environment Variables"
-          command: |
-            ./docker/scripts/verify-claude-code-token.sh
-            ./docker/scripts/verify-github-token.sh
-            echo "Claude Code version:"
-            claude --version
-
-      - run:
           name: "Generate PR Summary"
           command: |
             ./docker/scripts/generate-pr-summary.sh
@@ -43,7 +35,7 @@ jobs:
           name: "Automated Code Review"
           command: |
             ./docker/scripts/automated-code-review.sh
-            
+
       # Save Node.js dependencies cache
       - save_cache:
           key: node-v1-{{ checksum "package.json" }}
