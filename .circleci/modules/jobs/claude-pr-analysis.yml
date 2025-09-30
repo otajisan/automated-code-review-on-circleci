@@ -16,8 +16,8 @@ jobs:
       - run:
           name: "Generate PR Summary"
           environment:
-            ANTHROPIC_API_KEY: ANTHROPIC_API_KEY
-            GITHUB_TOKEN: GITHUB_TOKEN
+            ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+            GITHUB_TOKEN: ${GITHUB_TOKEN}
           command: |
             echo "Claude Code version:"
             claude --version
