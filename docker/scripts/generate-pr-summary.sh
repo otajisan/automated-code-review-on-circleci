@@ -93,20 +93,14 @@ export CI=true
 export NODE_ENV=production
 
 # 非対話的環境でClaude CLIを使用
-echo "# Using Claude CLI in non-interactive mode..."
+echo "# Using Claude CLI with stdin input..."
 
 # 環境変数を設定して非対話的モードにする
 export CLAUDE_NO_INTERACTIVE=true
 export CLAUDE_NO_TUI=true
 
-# プロンプトをファイルに書き込んで使用
-echo "$PROMPT" > /tmp/claude_prompt.txt
-
-# Claude CLIを非対話的モードで実行
-SUMMARY=$(timeout 30 claude /tmp/claude_prompt.txt 2>/dev/null || echo "Claude CLIの実行に失敗しました。手動でレビューしてください。")
-
-# ファイルを削除
-rm -f /tmp/claude_prompt.txt
+# 標準入力経由でプロンプトを渡す
+SUMMARY=$(echo "$PROMPT" | timeout 30 claude 2>/dev/null || echo "Claude CLIの実行に失敗しました。手動でレビューしてください。")
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
