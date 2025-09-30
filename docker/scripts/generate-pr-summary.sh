@@ -52,7 +52,7 @@ ${DIFF_OUTPUT}
 echo 'Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
-claude "$PROMPT" --debug
+PROMPT="これはテストです"
 SUMMARY=$(claude "$PROMPT")
 
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
