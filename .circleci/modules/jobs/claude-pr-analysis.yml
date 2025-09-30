@@ -15,15 +15,18 @@ jobs:
 
       - run:
           name: "Generate PR Summary"
+          environment:
+            ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
+            GITHUB_TOKEN: $GITHUB_TOKEN
           command: |
             echo "Claude Code version:"
             claude --version
+
+            echo "Environment variables check:"
+            echo "ANTHROPIC_API_KEY is set: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
+            echo "GITHUB_TOKEN is set: $([ -n "$GITHUB_TOKEN" ] && echo "yes" || echo "no")"
 
             # execute the PR summary generation script
             pwd
             whoami
             ./docker/scripts/generate-pr-summary.sh
-            #/claude-code-docker/scripts/generate-pr-summary.sh
-          environment:
-            ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
-            GITHUB_TOKEN: $GITHUB_TOKEN
