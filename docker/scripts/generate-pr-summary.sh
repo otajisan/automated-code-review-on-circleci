@@ -9,8 +9,17 @@ if [ -z "$ANTHROPIC_API_KEY" ]; then
     exit 1
 fi
 
-if [ -z "$GITHUB_TOKEN" ]; then
-    echo "Error: GITHUB_TOKEN is not set"
+# GitHubトークンの確認（複数の可能性をチェック）
+if [ -n "$GITHUB_TOKEN" ]; then
+    echo "Using GITHUB_TOKEN"
+elif [ -n "$CIRCLE_TOKEN" ]; then
+    echo "Using CIRCLE_TOKEN as GITHUB_TOKEN"
+    GITHUB_TOKEN="$CIRCLE_TOKEN"
+elif [ -n "$GH_TOKEN" ]; then
+    echo "Using GH_TOKEN as GITHUB_TOKEN" 
+    GITHUB_TOKEN="$GH_TOKEN"
+else
+    echo "Error: No GitHub token found (GITHUB_TOKEN, CIRCLE_TOKEN, or GH_TOKEN)"
     exit 1
 fi
 
@@ -66,30 +75,21 @@ echo '# Running claude command with CI environment...'
 export CI=true
 export NODE_ENV=production
 
-#SUMMARY=$(claude "$PROMPT")
+# 非対話的環境でClaude CLIを使用
+echo "# Using Claude CLI in non-interactive mode..."
 
-# Claude CLIが非対話的環境で動作しない場合はAPIを直接使用
-echo "# Debugging API call..."
-API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/messages \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: $ANTHROPIC_API_KEY" \
-  -d "{
-    \"model\": \"claude-3-5-sonnet-20241022\",
-    \"max_tokens\": 1024,
-    \"messages\": [{
-      \"role\": \"user\",
-      \"content\": \"$PROMPT\"
-    }]
-  }")
+# 環境変数を設定して非対話的モードにする
+export CLAUDE_NO_INTERACTIVE=true
+export CLAUDE_NO_TUI=true
 
-echo "# Raw API Response:"
-echo "$API_RESPONSE"
+# プロンプトをファイルに書き込んで使用
+echo "$PROMPT" > /tmp/claude_prompt.txt
 
-SUMMARY=$(echo "$API_RESPONSE" | jq -r '.content[0].text' 2>/dev/null)
-if [ "$SUMMARY" = "null" ] || [ -z "$SUMMARY" ]; then
-    echo "# API call failed, using fallback message"
-    SUMMARY="PRサマリの生成に失敗しました。手動でレビューしてください。"
-fi
+# Claude CLIを非対話的モードで実行
+SUMMARY=$(timeout 30 claude /tmp/claude_prompt.txt 2>/dev/null || echo "Claude CLIの実行に失敗しました。手動でレビューしてください。")
+
+# ファイルを削除
+rm -f /tmp/claude_prompt.txt
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
