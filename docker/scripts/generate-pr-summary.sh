@@ -66,7 +66,7 @@ echo '# Running claude command with CI environment...'
 export CI=true
 export NODE_ENV=production
 
-SUMMARY=$(claude-code --prompt "$PROMPT")
+SUMMARY=$(claude "$PROMPT")
 
 # Claude CLIが非対話的環境で動作しない場合はAPIを直接使用
 #SUMMARY=$(curl -s -X POST https://api.anthropic.com/v1/messages \
