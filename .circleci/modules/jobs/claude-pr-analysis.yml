@@ -14,32 +14,28 @@ jobs:
       - setup_remote_docker
 
       - run:
-          name: "Generate PR Summary"
-          #environment:
-          #  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-          #  GITHUB_TOKEN: ${GITHUB_TOKEN}
+          name: Set environment variables for build
           command: |
-            ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-            GITHUB_TOKEN=${GITHUB_TOKEN}
+            echo "export ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" >> $BASH_ENV
+            echo "export GITHUB_TOKEN=${GITHUB_TOKEN}" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: "Verify Environment Variables"
+          command: |
+            ./docker/scripts/verify-claude-code-token.sh
+            ./docker/scripts/verify-github-token.sh
             echo "Claude Code version:"
             claude --version
 
-            echo "Environment variables check:"
-            echo "ANTHROPIC_API_KEY is set: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
-            echo "GITHUB_TOKEN is set: $([ -n "$GITHUB_TOKEN" ] && echo "yes" || echo "no")"
-
-            # execute the PR summary generation script
+      - run:
+          name: "Generate PR Summary"
+          command: |
             /claude-code-docker/scripts/generate-pr-summary.sh
             #./docker/scripts/generate-pr-summary.sh
 
       - run:
           name: "Automated Code Review"
           command: |
-            ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-            GITHUB_TOKEN=${GITHUB_TOKEN}
-
-            echo "Starting automated code review..."
-
-            # コードレビュースクリプトの実行
             #/claude-code-docker/scripts/automated-code-review.sh
             ./docker/scripts/automated-code-review.sh
