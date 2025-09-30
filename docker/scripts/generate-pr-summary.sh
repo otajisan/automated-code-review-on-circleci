@@ -66,20 +66,30 @@ echo '# Running claude command with CI environment...'
 export CI=true
 export NODE_ENV=production
 
-SUMMARY=$(claude "$PROMPT")
+#SUMMARY=$(claude "$PROMPT")
 
 # Claude CLIが非対話的環境で動作しない場合はAPIを直接使用
-#SUMMARY=$(curl -s -X POST https://api.anthropic.com/v1/messages \
-#  -H "Content-Type: application/json" \
-#  -H "x-api-key: $ANTHROPIC_API_KEY" \
-#  -d "{
-#    \"model\": \"claude-3-sonnet-20240229\",
-#    \"max_tokens\": 1024,
-#    \"messages\": [{
-#      \"role\": \"user\",
-#      \"content\": \"$PROMPT\"
-#    }]
-#  }" | jq -r '.content[0].text' 2>/dev/null || echo "API呼び出しに失敗しました")
+echo "# Debugging API call..."
+API_RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -d "{
+    \"model\": \"claude-3-5-sonnet-20241022\",
+    \"max_tokens\": 1024,
+    \"messages\": [{
+      \"role\": \"user\",
+      \"content\": \"$PROMPT\"
+    }]
+  }")
+
+echo "# Raw API Response:"
+echo "$API_RESPONSE"
+
+SUMMARY=$(echo "$API_RESPONSE" | jq -r '.content[0].text' 2>/dev/null)
+if [ "$SUMMARY" = "null" ] || [ -z "$SUMMARY" ]; then
+    echo "# API call failed, using fallback message"
+    SUMMARY="PRサマリの生成に失敗しました。手動でレビューしてください。"
+fi
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
@@ -87,13 +97,20 @@ echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" 
 echo "# Generated PR Summary:"
 cat /tmp/pr_summary.json
 
+echo "# Checking GitHub API credentials..."
+echo "GITHUB_TOKEN is set: $([ -n "$GITHUB_TOKEN" ] && echo "yes" || echo "no")"
+echo "CIRCLE_PROJECT_USERNAME: $CIRCLE_PROJECT_USERNAME"
+echo "CIRCLE_PROJECT_REPONAME: $CIRCLE_PROJECT_REPONAME"
+
 echo "# Posting summary to PR #${PR_NUMBER}"
 # GitHub APIでPRにコメントを投稿
-curl -X POST \
+GITHUB_RESPONSE=$(curl -s -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/issues/${PR_NUMBER}/comments" \
-  -d '{"body": "this is test comment"}'
-  #-d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}"
+  -d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}")
+
+echo "# GitHub API Response:"
+echo "$GITHUB_RESPONSE"
 
 echo "# PR summary generated and posted successfully!"
