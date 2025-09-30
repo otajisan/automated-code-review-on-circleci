@@ -56,6 +56,7 @@ PROMPT="これはテストです"
 which claude
 SUMMARY=$(claude "$PROMPT")
 
+echo 'Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
 
 echo "Generated PR Summary:"
