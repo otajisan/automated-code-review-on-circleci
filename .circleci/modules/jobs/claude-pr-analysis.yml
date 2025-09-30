@@ -29,6 +29,17 @@ jobs:
             echo "GITHUB_TOKEN is set: $([ -n "$GITHUB_TOKEN" ] && echo "yes" || echo "no")"
 
             # execute the PR summary generation script
-            pwd
-            whoami
-            ./docker/scripts/generate-pr-summary.sh
+            /claude-code-docker/scripts/generate-pr-summary.sh
+            #./docker/scripts/generate-pr-summary.sh
+
+      - run:
+          name: "Automated Code Review"
+          command: |
+            ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+            GITHUB_TOKEN=${GITHUB_TOKEN}
+
+            echo "Starting automated code review..."
+
+            # コードレビュースクリプトの実行
+            #/claude-code-docker/scripts/automated-code-review.sh
+            ./docker/scripts/automated-code-review.sh
