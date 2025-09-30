@@ -29,12 +29,12 @@ if [ -z "$PR_NUMBER" ] || ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-echo "Generating summary for PR #${PR_NUMBER}"
+echo "# Generating summary for PR #${PR_NUMBER}"
 
 # git diffで変更内容を取得
 DIFF_OUTPUT=$(git diff origin/main...HEAD)
 
-echo "Diff Output:"
+echo "# Diff Output:"
 echo "$DIFF_OUTPUT"
 
 # Claude Codeでサマリを生成
@@ -49,20 +49,38 @@ ${DIFF_OUTPUT}
 ## 影響範囲
 ## 注意事項（あれば）"
 
-echo 'Creating PR summary with Claude...'
+echo '# Checking claude command...'
+echo "Debug: About to run claude command"
+echo "ANTHROPIC_API_KEY is set: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
+echo "Current user: $(whoami)"
+echo "Current directory: $(pwd)"
+echo "Claude command path: $(which claude)"
+echo "Claude version: $(claude --version 2>&1 || echo "version check failed")"
+
+echo '# Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
 PROMPT="これはテストです"
 which claude
+
+echo '# Running claude command...'
+echo "$PROMPT" | claude 2>&1 || {
+    echo "Error: claude command failed with exit code $?"
+    echo "Trying alternative approach..."
+    claude --help 2>&1 || echo "Help command also failed"
+}
+
+
+echo '# Capturing claude output...'
 SUMMARY=$(claude "$PROMPT")
 
-echo 'Saving PR summary to /tmp/pr_summary.json'
+echo '# Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
 
-echo "Generated PR Summary:"
+echo "# Generated PR Summary:"
 cat /tmp/pr_summary.json
 
-echo "Posting summary to PR #${PR_NUMBER}"
+echo "# Posting summary to PR #${PR_NUMBER}"
 # GitHub APIでPRにコメントを投稿
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
@@ -71,4 +89,4 @@ curl -X POST \
   -d '{"body": "this is test comment"}'
   #-d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}"
 
-echo "PR summary generated and posted successfully!"
+echo "# PR summary generated and posted successfully!"
