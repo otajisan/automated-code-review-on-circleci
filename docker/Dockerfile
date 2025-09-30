@@ -16,7 +16,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | s
 WORKDIR /claude-code-docker
 
 # Install Claude Code globally
-RUN npm install -g @anthropic-ai/claude-code
+RUN sudo npm install -g @anthropic-ai/claude-code
 
 # git configuration
 RUN git config --global user.email "ci@example.com" && \
