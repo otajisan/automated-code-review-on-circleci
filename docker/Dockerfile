@@ -4,6 +4,7 @@ RUN sudo apt-get update && sudo apt-get install -y \
     git \
     curl \
     ca-certificates \
+    jq \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # install github CLI

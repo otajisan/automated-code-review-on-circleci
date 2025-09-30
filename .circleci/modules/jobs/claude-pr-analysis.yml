@@ -4,8 +4,8 @@ jobs:
   claude-pr-analysis:
     docker:
       - image: otajisan/claude-code-docker:latest
-    #environment:
-    #  - NODE_ENV: production
+    environment:
+      - NODE_ENV: production
 
     working_directory: ~/repo
 
