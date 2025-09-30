@@ -7,7 +7,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 環境変数チェック
-"${SCRIPT_DIR}/verify-claude-code-token.sh"
+"${SCRIPT_DIR}/verify-api-tokens.sh"
 
 # PR情報を取得
 if [ -z "$CIRCLE_PULL_REQUEST" ]; then
