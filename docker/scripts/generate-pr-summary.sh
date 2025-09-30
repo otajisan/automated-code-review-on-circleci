@@ -60,25 +60,26 @@ echo "Claude version: $(claude --version 2>&1 || echo "version check failed")"
 echo '# Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
-PROMPT="これはテストです"
 which claude
 
 echo '# Running claude command with CI environment...'
 export CI=true
 export NODE_ENV=production
 
+SUMMARY=$(claude-code --prompt "$PROMPT")
+
 # Claude CLIが非対話的環境で動作しない場合はAPIを直接使用
-SUMMARY=$(curl -s -X POST https://api.anthropic.com/v1/messages \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: $ANTHROPIC_API_KEY" \
-  -d "{
-    \"model\": \"claude-3-sonnet-20240229\",
-    \"max_tokens\": 1024,
-    \"messages\": [{
-      \"role\": \"user\",
-      \"content\": \"$PROMPT\"
-    }]
-  }" | jq -r '.content[0].text' 2>/dev/null || echo "API呼び出しに失敗しました")
+#SUMMARY=$(curl -s -X POST https://api.anthropic.com/v1/messages \
+#  -H "Content-Type: application/json" \
+#  -H "x-api-key: $ANTHROPIC_API_KEY" \
+#  -d "{
+#    \"model\": \"claude-3-sonnet-20240229\",
+#    \"max_tokens\": 1024,
+#    \"messages\": [{
+#      \"role\": \"user\",
+#      \"content\": \"$PROMPT\"
+#    }]
+#  }" | jq -r '.content[0].text' 2>/dev/null || echo "API呼び出しに失敗しました")
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
