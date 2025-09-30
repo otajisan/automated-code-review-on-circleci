@@ -10,7 +10,7 @@ if [ -z "$ANTHROPIC_API_KEY" ]; then
 fi
 
 echo "# Checking Anthropic API key..."
-echo "API Key format: ${ANTHROPIC_API_KEY:0:10}...${ANTHROPIC_API_KEY: -4}"
+echo "API Key is configured: $([ -n "$ANTHROPIC_API_KEY" ] && echo "yes" || echo "no")"
 
 # GitHubトークンの確認（複数の可能性をチェック）
 if [ -n "$GITHUB_TOKEN" ]; then
@@ -43,10 +43,21 @@ fi
 
 echo "# Generating summary for PR #${PR_NUMBER}"
 
-# git diffで変更内容を取得
+# git diffで変更内容を取得（サイズ制限付き）
 DIFF_OUTPUT=$(git diff origin/main...HEAD)
+DIFF_SIZE=${#DIFF_OUTPUT}
+MAX_DIFF_SIZE=${MAX_DIFF_SIZE:-50000}  # デフォルト50KB
 
-echo "# Diff Output:"
+echo "# Diff Output (size: $DIFF_SIZE bytes):"
+
+if [ "$DIFF_SIZE" -gt "$MAX_DIFF_SIZE" ]; then
+    echo "Warning: Diff size ($DIFF_SIZE bytes) exceeds limit ($MAX_DIFF_SIZE bytes). Truncating..." >&2
+    DIFF_OUTPUT=$(echo "$DIFF_OUTPUT" | head -c "$MAX_DIFF_SIZE")
+    DIFF_OUTPUT="${DIFF_OUTPUT}
+
+... (diff truncated due to size limit)"
+fi
+
 echo "$DIFF_OUTPUT"
 
 # Claude Codeでサマリを生成
@@ -83,8 +94,12 @@ echo "# Using Claude CLI with stdin input..."
 export CLAUDE_NO_INTERACTIVE=true
 export CLAUDE_NO_TUI=true
 
-# 標準入力経由でプロンプトを渡す
-SUMMARY=$(echo "$PROMPT" | timeout 30 claude 2>/dev/null || echo "Claude CLIの実行に失敗しました。手動でレビューしてください。")
+# 標準入力経由でプロンプトを渡す（環境変数でタイムアウト設定）
+CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-30}
+if ! SUMMARY=$(echo "$PROMPT" | timeout "$CLAUDE_TIMEOUT" claude 2>&1); then
+    echo "Warning: Claude CLI execution failed after ${CLAUDE_TIMEOUT}s timeout: $SUMMARY" >&2
+    SUMMARY="Claude CLIの実行に失敗しました。手動でレビューしてください。"
+fi
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
 

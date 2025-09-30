@@ -12,6 +12,12 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      
+      # Cache for Node.js dependencies
+      - restore_cache:
+          keys:
+            - node-v1-{{ checksum "package.json" }}
+            - node-v1-
 
       - run:
           name: Set environment variables for build
@@ -31,11 +37,16 @@ jobs:
       - run:
           name: "Generate PR Summary"
           command: |
-            /claude-code-docker/scripts/generate-pr-summary.sh
-            #./docker/scripts/generate-pr-summary.sh
+            ./docker/scripts/generate-pr-summary.sh
 
       - run:
           name: "Automated Code Review"
           command: |
-            #/claude-code-docker/scripts/automated-code-review.sh
             ./docker/scripts/automated-code-review.sh
+            
+      # Save Node.js dependencies cache
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
