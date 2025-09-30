@@ -52,6 +52,7 @@ ${DIFF_OUTPUT}
 echo 'Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
+claude "$PROMPT" --debug
 SUMMARY=$(claude "$PROMPT")
 
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
@@ -59,6 +60,7 @@ echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" 
 echo "Generated PR Summary:"
 cat /tmp/pr_summary.json
 
+echo "Posting summary to PR #${PR_NUMBER}"
 # GitHub APIでPRにコメントを投稿
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
