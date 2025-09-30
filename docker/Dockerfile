@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM cimg/node:22.20
 
 RUN apt-get update && apt-get install -y \
     git \
