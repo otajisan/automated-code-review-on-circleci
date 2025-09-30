@@ -21,6 +21,7 @@ jobs:
 
             # execute the PR summary generation script
             pwd
+            whoami
             ./docker/scripts/generate-pr-summary.sh
             #/claude-code-docker/scripts/generate-pr-summary.sh
           environment:

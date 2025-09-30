@@ -53,6 +53,7 @@ echo 'Creating PR summary with Claude...'
 
 # Claude Codeを実行してサマリ生成
 PROMPT="これはテストです"
+which claude
 SUMMARY=$(claude "$PROMPT")
 
 echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
