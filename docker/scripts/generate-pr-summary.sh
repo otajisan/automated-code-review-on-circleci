@@ -103,7 +103,13 @@ export CLAUDE_NO_TUI=true
 SUMMARY=$(echo "$PROMPT" | timeout 30 claude 2>/dev/null || echo "Claude CLIの実行に失敗しました。手動でレビューしてください。")
 
 echo '# Saving PR summary to /tmp/pr_summary.json'
-echo "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}" > /tmp/pr_summary.json
+
+# jqを使って正しいJSONを生成
+COMMENT_BODY="🤖 **自動生成されたPRサマリ**
+
+${SUMMARY}"
+
+echo "$COMMENT_BODY" | jq -Rs '{"body": .}' > /tmp/pr_summary.json
 
 echo "# Generated PR Summary:"
 cat /tmp/pr_summary.json
@@ -114,12 +120,13 @@ echo "CIRCLE_PROJECT_USERNAME: $CIRCLE_PROJECT_USERNAME"
 echo "CIRCLE_PROJECT_REPONAME: $CIRCLE_PROJECT_REPONAME"
 
 echo "# Posting summary to PR #${PR_NUMBER}"
-# GitHub APIでPRにコメントを投稿
+# GitHub APIでPRにコメントを投稿（ファイルから読み込み）
 GITHUB_RESPONSE=$(curl -s -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
+  -H "Content-Type: application/json" \
   "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/issues/${PR_NUMBER}/comments" \
-  -d "{\"body\":\"🤖 **自動生成されたPRサマリ**\\n\\n${SUMMARY}\"}")
+  -d @/tmp/pr_summary.json)
 
 echo "# GitHub API Response:"
 echo "$GITHUB_RESPONSE"
