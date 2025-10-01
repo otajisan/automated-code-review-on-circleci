@@ -9,11 +9,14 @@ This image is built on Node.js 18 slim and includes Claude Code CLI, Git, and Gi
 ## Features
 
 - ✅ **Claude Code CLI** pre-installed and ready to use
-- ✅ **Git** for repository operations
+- ✅ **Git** for repository operations  
 - ✅ **GitHub CLI** for GitHub API interactions
-- ✅ **Node.js 18** runtime environment
+- ✅ **Node.js 22** runtime environment
 - ✅ **Minimal footprint** based on slim base image
 - ✅ **CI/CD optimized** for Circle CI, GitHub Actions, and other platforms
+- ✅ **Automated PR Summary Generation** with size limits and error handling
+- ✅ **Security-focused** with no token leakage in logs
+- ✅ **Configurable timeouts** and diff size limits
 
 ## Quick Start
 
@@ -39,10 +42,14 @@ docker run --rm \
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | ✅ | Your Anthropic API key for Claude access |
-| `GITHUB_TOKEN` | ⚠️ | GitHub Personal Access Token (required for GitHub operations) |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | ✅ | - | Your Anthropic API key for Claude access |
+| `GITHUB_TOKEN` | ⚠️ | - | GitHub Personal Access Token (required for GitHub operations) |
+| `MAX_DIFF_SIZE` | ❌ | 50000 | Maximum git diff size in bytes to prevent API timeouts |
+| `CLAUDE_TIMEOUT` | ❌ | 30 | Timeout in seconds for Claude CLI operations |
+| `CLAUDE_NO_INTERACTIVE` | ❌ | true | Disable interactive mode for CI environments |
+| `CLAUDE_NO_TUI` | ❌ | true | Disable TUI interface for CI environments |
 
 ## Usage Examples
 
@@ -100,11 +107,41 @@ Mount your project directory to work with your code:
 -w /workspace
 ```
 
+## Automated Scripts
+
+### PR Summary Generation
+
+The `generate-pr-summary.sh` script automatically:
+- Extracts PR changes using git diff
+- Generates AI-powered summaries using Claude
+- Posts summaries as PR comments
+- Handles large diffs with size limits
+- Provides proper error handling and logging
+
+### Code Review Automation
+
+The `automated-code-review.sh` script provides:
+- Comprehensive code analysis
+- Security vulnerability detection
+- Performance recommendations
+- Best practice suggestions
+
+## Cost Considerations
+
+**Claude API Usage Estimates:**
+- Small PR (< 1KB diff): ~$0.01 per summary
+- Medium PR (5KB diff): ~$0.03 per summary  
+- Large PR (50KB diff): ~$0.15 per summary
+
+*Costs are approximate and depend on Claude model usage and token consumption.*
+
 ## Security Considerations
 
 - 🔐 Store API keys securely using your CI/CD platform's secrets management
 - 🔒 Use least-privilege GitHub tokens when possible
 - 🛡️ Regularly update the base image for security patches
+- 🔒 Token information is not exposed in logs for security
+- ⚠️ Diff content may contain sensitive information - ensure proper access controls
 
 ## Troubleshooting
 
