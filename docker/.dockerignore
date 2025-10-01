@@ -1,0 +1,49 @@
+# Version Control
+.git
+.gitignore
+
+# IDE/Editor
+.idea
+.vscode
+*.swp
+*.swo
+
+# Logs
+*.log*
+
+# Temporary Files
+*.tmp
+*.temp
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Dependency Directories
+node_modules
+.npm
+.yarn-integrity
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build Output
+build
+dist
+out
+*.tgz
+*.tar.gz
+
+# Test
+coverage
+.nyc_output
+test-results
+
+# Docker
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
