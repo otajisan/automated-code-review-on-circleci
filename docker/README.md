@@ -117,6 +117,8 @@ The `generate-pr-summary.sh` script automatically:
 - Posts summaries as PR comments
 - Handles large diffs with size limits
 - Provides proper error handling and logging
+- **Prevents duplicate summaries** - only generates once per PR
+- Checks for existing summaries before generating new ones
 
 ### Code Review Automation
 
@@ -125,6 +127,8 @@ The `automated-code-review.sh` script provides:
 - Security vulnerability detection
 - Performance recommendations
 - Best practice suggestions
+- **Duplicate review prevention** - only reviews once per PR
+- Checks for existing reviews before generating new ones
 
 ## Cost Considerations
 

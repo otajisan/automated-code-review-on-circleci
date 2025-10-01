@@ -15,6 +15,15 @@ if [ -z "$CIRCLE_PULL_REQUEST" ]; then
     exit 0
 fi
 
+# PR作成時のみ実行（初回コミット以外はスキップ）
+# CircleCI の CIRCLE_COMPARE_URL をチェックして、初回プッシュかどうか判定
+if [ -n "$CIRCLE_COMPARE_URL" ] && echo "$CIRCLE_COMPARE_URL" | grep -q "/compare/"; then
+    # 既存PRへの追加プッシュの場合、コメントが既にあるかチェックする
+    echo "# This appears to be an additional push to existing PR"
+else
+    echo "# This appears to be initial PR creation"
+fi
+
 # CIRCLE_PULL_REQUESTからPR番号を抽出
 # 例: https://github.com/otajisan/automated-code-review-on-circleci/pull/2 -> 2
 PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's|.*/pull/||')
@@ -24,7 +33,31 @@ if [ -z "$PR_NUMBER" ] || ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-echo "# Generating summary for PR #${PR_NUMBER}"
+echo "# Checking if PR summary already exists for PR #${PR_NUMBER}"
+
+# GitHub APIでPRの詳細情報を取得
+PR_INFO=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}")
+
+# PRの作成日時を取得
+PR_CREATED_AT=$(echo "$PR_INFO" | jq -r '.created_at')
+echo "# PR created at: $PR_CREATED_AT"
+
+# GitHub APIでPRのコメントを確認
+EXISTING_COMMENTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/issues/${PR_NUMBER}/comments")
+
+# 既存のPRサマリコメントがあるかチェック
+EXISTING_SUMMARY=$(echo "$EXISTING_COMMENTS" | jq -r '.[] | select(.body | contains("🤖 **自動生成されたPRサマリ**")) | .created_at' | head -1)
+
+if [ -n "$EXISTING_SUMMARY" ] && [ "$EXISTING_SUMMARY" != "null" ]; then
+    echo "# PR summary already exists (created at: $EXISTING_SUMMARY) for PR #${PR_NUMBER}. Skipping generation."
+    exit 0
+fi
+
+echo "# No existing PR summary found. Generating summary for PR #${PR_NUMBER}"
 
 # git diffで変更内容を取得（サイズ制限付き）
 DIFF_OUTPUT=$(git diff origin/main...HEAD)
