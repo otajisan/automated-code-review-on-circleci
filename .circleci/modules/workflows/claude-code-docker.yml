@@ -6,8 +6,9 @@ workflows:
         - << pipeline.parameters.build-claude-code-docker >>
     jobs:
       # Test build Docker image for PRs (without publishing)
-      - docker/build:
+      - docker/publish:
           name: test-docker-build
+          deploy: false
           dockerfile: Dockerfile
           docker_context: docker
           path: docker
