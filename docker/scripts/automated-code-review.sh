@@ -1,5 +1,6 @@
 #!/bin/bash
 # scripts/automated-code-review.sh
+# Pull Requestに対して統合的な自動コードレビューを実行するメインスクリプト
 
 set -e
 
@@ -155,3 +156,10 @@ if echo "$GITHUB_RESPONSE" | jq -e '.message' > /dev/null 2>&1; then
 else
     echo "# Code review posted successfully!"
 fi
+
+echo "# Starting inline code review..."
+
+# インラインレビューを実行
+"${SCRIPT_DIR}/automated-inline-review.sh"
+
+echo "# Automated code review process completed!"
