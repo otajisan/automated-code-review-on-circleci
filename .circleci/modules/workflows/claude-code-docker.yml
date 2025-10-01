@@ -1,6 +1,33 @@
 workflows:
-  # Claude Code Docker
-  build-claude-code-docker:
+  # Claude Code Docker - PR Test Build and Analysis
+  test-claude-code-docker:
+    when:
+      and:
+        - << pipeline.parameters.build-claude-code-docker >>
+    jobs:
+      # Test build Docker image for PRs (without publishing)
+      - docker/build:
+          name: test-docker-build
+          dockerfile: Dockerfile
+          docker_context: docker
+          path: docker
+          image: otajisan/claude-code-docker
+          tag: 'test-${CIRCLE_SHA1}'
+          filters:
+            branches:
+              ignore:
+                - main
+      # Run automated PR analysis after successful build
+      - claude-pr-analysis:
+          requires:
+            - test-docker-build
+          filters:
+            branches:
+              ignore:
+                - main
+
+  # Claude Code Docker - Production Build (main branch only)
+  publish-claude-code-docker:
     when:
       and:
         - << pipeline.parameters.build-claude-code-docker >>
@@ -18,4 +45,3 @@ workflows:
             branches:
               only:
                 - main
-
