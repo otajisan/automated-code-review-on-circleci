@@ -9,6 +9,9 @@ parameters:
   build-claude-code-docker:
     type: boolean
     default: false
+  build-nodejs-example:
+    type: boolean
+    default: false
 
 commands:
 
@@ -23,3 +26,4 @@ workflows:
     when:
       and:
         - not: << pipeline.parameters.build-claude-code-docker >>
+        - not: << pipeline.parameters.build-nodejs-example >>

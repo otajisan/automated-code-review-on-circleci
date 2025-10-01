@@ -1,0 +1,44 @@
+version: 2.1
+
+jobs:
+  claude-pr-analysis:
+    docker:
+      - image: otajisan/claude-code-docker:latest
+    environment:
+      - NODE_ENV: production
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      # Cache for Node.js dependencies
+      - restore_cache:
+          keys:
+            - node-v1-{{ checksum "package.json" }}
+            - node-v1-
+
+      - run:
+          name: Set environment variables for build
+          command: |
+            echo "export ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" >> $BASH_ENV
+            echo "export GITHUB_TOKEN=${GITHUB_TOKEN}" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: "Generate PR Summary"
+          command: |
+            ./docker/scripts/generate-pr-summary.sh
+
+      - run:
+          name: "Automated Code Review"
+          command: |
+            ./docker/scripts/automated-code-review.sh
+
+      # Save Node.js dependencies cache
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
