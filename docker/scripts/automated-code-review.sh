@@ -23,7 +23,22 @@ if [ -z "$PR_NUMBER" ] || ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-echo "# Starting automated code review for PR #${PR_NUMBER}"
+echo "# Checking if automated code review already exists for PR #${PR_NUMBER}"
+
+# GitHub APIでPRのレビューを確認
+EXISTING_REVIEWS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}/reviews")
+
+# 既存の自動レビューがあるかチェック
+EXISTING_AUTO_REVIEW=$(echo "$EXISTING_REVIEWS" | jq -r '.[] | select(.body | contains("🤖 自動コードレビュー")) | .submitted_at' | head -1)
+
+if [ -n "$EXISTING_AUTO_REVIEW" ] && [ "$EXISTING_AUTO_REVIEW" != "null" ]; then
+    echo "# Automated code review already exists (submitted at: $EXISTING_AUTO_REVIEW) for PR #${PR_NUMBER}. Skipping generation."
+    exit 0
+fi
+
+echo "# No existing automated review found. Starting automated code review for PR #${PR_NUMBER}"
 
 # 変更されたファイル一覧を取得
 CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
