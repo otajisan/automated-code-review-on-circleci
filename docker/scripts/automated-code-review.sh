@@ -157,9 +157,4 @@ else
     echo "# Code review posted successfully!"
 fi
 
-echo "# Starting inline code review..."
-
-# インラインレビューを実行
-"${SCRIPT_DIR}/automated-inline-review.sh"
-
 echo "# Automated code review process completed!"

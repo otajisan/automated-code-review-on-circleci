@@ -120,15 +120,17 @@ The `generate-pr-summary.sh` script automatically:
 - **Prevents duplicate summaries** - only generates once per PR
 - Checks for existing summaries before generating new ones
 
-### Code Review Automation
+### Inline Code Review Automation
 
-The `automated-code-review.sh` script provides:
-- Comprehensive code analysis
-- Security vulnerability detection
-- Performance recommendations
-- Best practice suggestions
+The `automated-inline-review.sh` script provides:
+- **Inline comments** on specific code lines in Pull Requests
+- Comprehensive code analysis with line-by-line feedback
+- Security vulnerability detection with precise location
+- Performance recommendations for specific code sections
+- Best practice suggestions with exact line references
 - **Duplicate review prevention** - only reviews once per PR
-- Checks for existing reviews before generating new ones
+- Checks for existing inline reviews before generating new ones
+- Separates line-specific feedback from general observations
 
 ## Cost Considerations
 
