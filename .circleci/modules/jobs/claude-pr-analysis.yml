@@ -32,9 +32,9 @@ jobs:
             ./docker/scripts/generate-pr-summary.sh
 
       - run:
-          name: "Automated Code Review"
+          name: "Automated Inline Code Review"
           command: |
-            ./docker/scripts/automated-code-review.sh
+            ./docker/scripts/automated-inline-review.sh
 
       # Save Node.js dependencies cache
       - save_cache:
